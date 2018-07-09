@@ -1,0 +1,154 @@
+
+Otimização Do Backbone.Js
+6. Como usar templates no backbone js - Learning Backbone js
+Postado por Mohit Jain em 20 de dezembro de 2012.
+
+Esta entrada é parte 6 de 14 na série para um guia completo para a aprendizagem Backbone Js
+
+Introdução e Instalação
+Representando seus dados em javascript
+Definindo Modelos no backbone js
+Adicionando Validações no backbone de modelos js
+Explicando visões no backbone js
+Como usar modelos no backbone js
+Como melhorar modelos no backbone js
+Coleções no backbone js
+Visualizações de coleção no backbone js
+Ajudantes de modelo no backbone js
+Como usar o namespace no backbone js
+Como lidar com eventos dom no backbone js e definir seus eventos personalizados ( Live Demo )
+Roteamento no backbone js
+Agenda
+Nas lições anteriores, aprendemos como definir exibições e exibir dados, mas o problema era exibições complexas. Nesta lição, aprenderemos como usar modelos no backbone js.
+
+O que temos até agora
+Então, da lição anterior, temos este PersonView:
+
+var Person = Backbone.Model.extend({
+    defaults: {
+        name: 'Guest User',
+        age: 23,
+        occupation: 'worker'
+    }
+});
+
+var PersonView = Backbone.View.extend({
+   tagName: 'li',
+
+   initialize: function(){
+     this.render();
+   },
+
+   render: function(){
+     this.$el.html( this.model.get('name') + ' (' + this.model.get('age') + ') - ' + this.model.get('occupation') );
+  }
+});
+
+// calls from console
+
+// var person = new Person;
+// var personView = new PersonView({ model: person });
+//$(document.body).html(personView.el);  // this is not ideal but good enough for demo.
+Qual era o problema
+O problema é que esse código é:
+
+this.$el.html( this.model.get('name') + ' (' + this.model.get('age') + ') - ' + this.model.get('occupation') );
+Isso será mais complicado se tivermos imagens ou algumas exibições complexas etc.
+
+Usando um modelo
+Vamos usar um modelo e passamos dados para esse modelo e, em retorno, esse modelo retorna a visualização HTML completa. Dê uma olhada neste código e vamos discutir isso linha por linha.
+
+var Person = Backbone.Model.extend({
+    defaults: {
+        name: 'Guest Worker',
+        age: 23,
+        occupation: 'worker'
+    }
+});
+
+var PersonView = Backbone.View.extend({
+    tagName: 'li',
+
+    my_template: _.template("<strong><%= name %></strong> (<%= age %>) - <%= occupation %>"),
+
+    initialize: function(){
+        this.render();
+    },
+
+    render: function(){
+        this.$el.html( this.my_template(this.model.toJSON()));
+    }
+});
+
+// calls from console
+
+// var person = new Person;
+// var personView = new PersonView({ model: person });
+//$(document.body).html(personView.el);  // this is not ideal but good enough for demo.
+Então, nós introduzimos uma nova linha, ou seja,
+
+my_template: _.template("<strong><%= name %></strong> (<%= age %>) - <%= occupation %>"),
+Backbone js tem um recurso que você pode definir um template usando o sublinhado js que nós incluimos na lição 1, e ele compilará o template, e quando você passar os dados, ele irá retornar a visão HTML conforme o código. Então, na linha acima, nós definimos um modelo usando
+
+_.template("<strong><%= name %></strong> (<%= age %>) - <%= occupation %>")
+e nós atribuímos isso a
+
+my_template = .......
+Agora o backbone js irá compilá-lo e definir uma função nos bastidores. A próxima modificação que fizemos foi:
+
+this.$el.html( this.my_template(this.model.toJSON()));
+// it was
+//this.$el.html( this.model.get('name') + ' (' + this.model.get('age') + ') - ' + this.model.get('occupation') );
+Chamamos o modelo e precisamos passar os dados para esse modelo. Nós teremos acesso ao objeto modelo como nós chamaremos:
+
+// calls from console
+// var person = new Person;
+// var personView = new PersonView({ model: person });
+Então o personView tem acesso ao modelo, e anteriormente vimos que o método toJSON () apenas passa os parâmetros do objeto. Legal. Agora vamos ver o código novamente e discutir o fluxo total:
+
+var Person = Backbone.Model.extend({
+    defaults: {
+        name: 'Guest Worker',
+        age: 23,
+        occupation: 'worker'
+    }
+});
+
+var PersonView = Backbone.View.extend({
+    tagName: 'li',
+
+    my_template: _.template("<strong><%= name %></strong> (<%= age %>) - <%= occupation %>"),
+
+    initialize: function(){
+        this.render();
+    },
+
+    render: function(){
+        this.$el.html( this.my_template(this.model.toJSON()));
+    }
+});
+Acione o console e dispare esses comandos
+var person = new Person;  // a person object created...
+var personView = new PersonView({ model: person });
+personView.el   // ---->; You can call this method and it will display the view..
+$(document.body).html(personView.el);  //  --->; This will add output to the dom. This is not ideal but good enough for demo.
+O que está acontecendo?
+Um objeto personView é criado.
+Pessoa de modelo foi passada para esse objeto personView.
+Então, o personView tem acesso ao objeto da pessoa.
+O construtor personView chamará o método render.
+O método render chama o template via my_template e passa os dados para my_template
+my_template aceita os parâmetros e atribui valores apropriados e retorna para renderizar.
+Legal :)
+
+Saída no Console do Chrome
+Agora vamos ver o que dizem as ferramentas do desenvolvedor do Chrome:
+
+definindo modelos no backbone js
+
+Os modelos que serão definidos são conhecidos como modelos inline. Nós podemos melhorar este código também. Vamos ver isso na próxima lição.
+
+Código fonte
+Se você está enfrentando algum problema. Confira os arquivos de código fonte no github . Eu estarei criando mais e mais diretórios no mesmo repositório para cada publicação. Ainda assim, se você tiver alguma dúvida, você pode comentar sobre a postagem do blog em si, e vou tentar responder de volta o mais rápido possível.
+
+
